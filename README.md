@@ -1,1 +1,1 @@
-[# @CASHBYDAILY](https://www.cashbydaily.com/mailer)
+[@CASHBYDAILY](https://www.cashbydaily.com/mailer)
