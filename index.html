@@ -73,7 +73,8 @@
     flex:0 0 220px;
   }
 
-  .meta{
+  .meta,
+  .status-line{
     max-width:1500px;
     margin:10px auto 0;
     padding:0 20px;
@@ -82,11 +83,6 @@
   }
 
   .status-line{
-    max-width:1500px;
-    margin:6px auto 0;
-    padding:0 20px;
-    font-size:14px;
-    color:var(--muted);
     min-height:20px;
   }
 
@@ -224,22 +220,22 @@
     color:#fff;
   }
 
-  .empty{
-    grid-column:1/-1;
-    padding:26px;
-    border:1px dashed #ccc;
-    border-radius:14px;
-    text-align:center;
-    color:var(--muted);
-    background:#fff;
-  }
-
+  .empty,
   .error{
     grid-column:1/-1;
     padding:26px;
-    border:1px solid #f0c3c3;
     border-radius:14px;
     text-align:center;
+    background:#fff;
+  }
+
+  .empty{
+    border:1px dashed #ccc;
+    color:var(--muted);
+  }
+
+  .error{
+    border:1px solid #f0c3c3;
     color:#8b1e1e;
     background:#fff6f6;
   }
@@ -337,6 +333,12 @@
     return String(v ?? "").trim();
   }
 
+  function normalizeStatus(v) {
+    return String(v ?? "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]/g, "");
+  }
+
   function vehicleSort(a, b, mode) {
     const yearA = toNumber(a.year);
     const yearB = toNumber(b.year);
@@ -407,8 +409,12 @@
       const typeLine = escapeHtml(v.type);
       const stockLine = escapeHtml(v.stock);
       const priceLine = Number(toNumber(v.price)).toLocaleString();
-      const statusClass = v.status === "sold" ? "sold" : "in-stock";
-      const statusLabel = v.status ? v.status.toUpperCase() : "IN-STOCK";
+
+      const statusNormalized = normalizeStatus(v.status);
+      const isSold = statusNormalized.includes("sold");
+      const isInStock = statusNormalized.includes("instock") || statusNormalized.includes("instock");
+      const statusClass = isSold ? "sold" : "in-stock";
+      const statusLabel = isSold ? "SOLD" : (isInStock ? "IN STOCK" : (v.status ? v.status.toUpperCase() : "IN STOCK"));
 
       const thumbs = images.slice(0, 6).map((img, i) => `
         <button class="thumb" type="button" onclick="setCardImage('${cardId}', '${String(img).replaceAll("'", "\\'")}')">
@@ -444,7 +450,7 @@
 
             <div class="buttons">
               <a class="btn primary" href="https://www.cashbydaily.com/inquiry" target="_blank" rel="noopener">Schedule</a>
-              <a class="btn secondary" href="javascript:void(0)" onclick="navigator.clipboard.writeText('${escapeHtml(stockLine).replaceAll("'", "\\'")}')">Copy Stock</a>
+              <a class="btn secondary" href="javascript:void(0)" onclick="navigator.clipboard.writeText('${stockLine.replaceAll("'", "\\'")}')">Copy Stock</a>
             </div>
           </div>
         </article>
@@ -489,11 +495,23 @@
         type: normalizeText(row.c?.[3]?.v || ""),
         price: normalizeText(row.c?.[4]?.v || ""),
         stock: normalizeText(row.c?.[5]?.v || ""),
-        status: normalizeText(row.c?.[6]?.v || "").toLowerCase(),
+        status: normalizeText(row.c?.[6]?.v || ""),
         images: parseImages(row.c?.[7]?.v || "")
-      })).filter(v => v.status === "in-stock");
+      }));
 
-      statusEl.textContent = "";
+      const total = vehicles.length;
+      const inStockCount = vehicles.filter(v => {
+        const s = normalizeStatus(v.status);
+        return s.includes("instock") || s.includes("instk");
+      }).length;
+
+      statusEl.textContent = `Loaded ${total} rows. In-stock rows detected: ${inStockCount}.`;
+
+      vehicles = vehicles.filter(v => {
+        const s = normalizeStatus(v.status);
+        return s.includes("instock") || s.includes("instk");
+      });
+
       render();
     } catch (err) {
       console.error(err);
