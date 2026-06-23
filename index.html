@@ -21,10 +21,7 @@
     border-bottom: 1px solid #eee;
   }
 
-  header h1 {
-    margin: 0;
-    font-size: 40px;
-  }
+  header h1 { margin: 0; font-size: 40px; }
 
   .controls {
     display: flex;
@@ -73,38 +70,21 @@
     cursor: pointer;
   }
 
-  .card:hover {
-    box-shadow: 0 10px 25px rgba(0,0,0,.08);
-  }
+  .card:hover { box-shadow: 0 10px 25px rgba(0,0,0,.08); }
 
   .img {
     width: 100%;
     height: 220px;
     object-fit: cover;
-    background: #f3f3f3;
     display: block;
+    background: #f3f3f3;
   }
 
-  .content {
-    padding: 12px;
-  }
+  .content { padding: 12px; }
 
-  .title {
-    font-size: 18px;
-    font-weight: 700;
-    margin-bottom: 6px;
-  }
-
-  .price {
-    font-size: 22px;
-    font-weight: 800;
-    margin-bottom: 6px;
-  }
-
-  .meta {
-    font-size: 13px;
-    color: #666;
-  }
+  .title { font-size: 18px; font-weight: 700; margin-bottom: 6px; }
+  .price { font-size: 22px; font-weight: 800; margin-bottom: 6px; }
+  .meta { font-size: 13px; color: #666; }
 
   .chips {
     display: flex;
@@ -125,7 +105,7 @@
     display: none;
     position: fixed;
     inset: 0;
-    background: rgba(0,0,0,.8);
+    background: rgba(0,0,0,.85);
     z-index: 9999;
     justify-content: center;
     align-items: center;
@@ -136,49 +116,62 @@
     background: #fff;
     width: min(1000px, 100%);
     border-radius: 16px;
-    overflow: auto;
+    overflow: hidden;
     max-height: 92vh;
   }
 
+  /* MEDIA AREA */
   .media {
     position: relative;
     background: #000;
-  }
-
-  .media img, .media iframe {
     width: 100%;
     height: 420px;
+    overflow: hidden;
+  }
+
+  .media img {
+    width: 100%;
+    height: 100%;
     object-fit: contain;
-    border: 0;
+    display: block;
     background: #000;
   }
 
-  .arrows {
+  /* ✅ ARROWS FIXED */
+  .arrow {
     position: absolute;
     top: 50%;
     transform: translateY(-50%);
-    width: 100%;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    font-size: 26px;
+    font-weight: bold;
+    background: rgba(255,255,255,0.95);
+    color: #111;
+    z-index: 10;
     display: flex;
-    justify-content: space-between;
-    padding: 0 10px;
+    align-items: center;
+    justify-content: center;
   }
 
-  .arrow {
-    background: rgba(255,255,255,.9);
-    border: none;
-    width: 44px;
-    height: 44px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 22px;
+  .arrow.left { left: 10px; }
+  .arrow.right { right: 10px; }
+
+  .arrow:hover {
+    background: #fff;
   }
 
   .dots {
+    position: absolute;
+    bottom: 10px;
+    left: 0;
+    right: 0;
     display: flex;
     justify-content: center;
     gap: 6px;
-    padding: 10px;
-    background: #000;
   }
 
   .dot {
@@ -189,13 +182,9 @@
     background: #555;
   }
 
-  .dot.active {
-    background: #fff;
-  }
+  .dot.active { background: #fff; }
 
-  .info {
-    padding: 14px;
-  }
+  .info { padding: 14px; }
 
   .grid2 {
     display: grid;
@@ -222,7 +211,6 @@
   .primary { background: #1877f2; color: #fff; }
   .dark { background: #111; color: #fff; }
   .light { background: #eee; }
-
 </style>
 </head>
 
@@ -235,22 +223,6 @@
 <div class="controls">
   <input id="search" placeholder="Search inventory..." />
   <button class="search-btn" onclick="runSearch()">Search</button>
-
-  <select id="sort">
-    <option value="new">Year New → Old</option>
-    <option value="old">Year Old → New</option>
-    <option value="low">Price Low → High</option>
-    <option value="high">Price High → Low</option>
-  </select>
-
-  <select id="type">
-    <option value="">All Types</option>
-    <option value="suv">SUV</option>
-    <option value="sedan">Sedan</option>
-    <option value="truck">Truck</option>
-    <option value="coupe">Coupe</option>
-    <option value="other">Other</option>
-  </select>
 </div>
 
 <div class="grid" id="grid"></div>
@@ -258,14 +230,12 @@
 <!-- DETAILS -->
 <div class="modal" id="modal">
   <div class="panel">
-    
-    <div class="media">
-      <div id="mediaBox"></div>
 
-      <div class="arrows">
-        <button class="arrow" onclick="prev()">‹</button>
-        <button class="arrow" onclick="next()">›</button>
-      </div>
+    <div class="media">
+      <button class="arrow left" onclick="prev()">‹</button>
+      <button class="arrow right" onclick="next()">›</button>
+
+      <div id="mediaBox" style="width:100%;height:100%;"></div>
 
       <div class="dots" id="dots"></div>
     </div>
@@ -297,10 +267,17 @@ let filtered = [];
 let current = 0;
 let mediaIndex = 0;
 
+/* STOCK URL AUTO SEARCH */
+function getStockFromURL(){
+  return new URLSearchParams(window.location.search).get("stock") || "";
+}
+
+/* MEDIA */
 function parseMedia(desc=""){
   return desc.split(";").map(x=>x.trim()).filter(Boolean);
 }
 
+/* LOAD */
 function loadData(res){
   data = res.table.rows.map(r=>({
     year:r.c[0]?.v||"",
@@ -310,50 +287,49 @@ function loadData(res){
     price:r.c[4]?.v||"",
     stock:r.c[5]?.v||"",
     status:r.c[6]?.v||"",
-    desc:r.c[7]?.v||"",
     media:parseMedia(r.c[7]?.v||"")
   }));
 
   render();
+
+  const stock = getStockFromURL();
+  if(stock){
+    document.getElementById("search").value = stock;
+    render();
+  }
 }
 
+/* RENDER */
 function render(){
   const q = document.getElementById("search").value.toLowerCase();
-  const type = document.getElementById("type").value;
 
-  filtered = data.filter(v=>{
-    const matchQ = (v.year+v.make+v.model+v.stock).toLowerCase().includes(q);
-    const matchT = type ? v.type.toLowerCase()==type : true;
-    return matchQ && matchT;
-  });
+  filtered = data.filter(v =>
+    (v.year+v.make+v.model+v.stock).toLowerCase().includes(q)
+  );
 
   document.getElementById("grid").innerHTML =
   filtered.map((v,i)=>`
     <div class="card" onclick="openDetails(${i})">
-      <img class="img" src="${v.media[0]||''}" onerror="this.style.display='none'">
+      <img class="img" src="${v.media[0] || ''}" />
       <div class="content">
         <div class="title">${v.year} ${v.make} ${v.model}</div>
         <div class="price">$${v.price}</div>
         <div class="meta">Stock: ${v.stock}</div>
-        <div class="chips">
-          <span class="chip">${v.type}</span>
-          <span class="chip">${v.status}</span>
-        </div>
       </div>
     </div>
   `).join("");
 }
 
+/* DETAILS */
 function openDetails(i){
   current = i;
   mediaIndex = 0;
 
   const v = filtered[i];
-  document.getElementById("modal").style.display="flex";
 
+  document.getElementById("modal").style.display="flex";
   document.getElementById("title").innerText =
     `${v.year} ${v.make} ${v.model}`;
-
   document.getElementById("price").innerText = `$${v.price}`;
 
   document.getElementById("infoGrid").innerHTML = `
@@ -367,35 +343,32 @@ function openDetails(i){
 
 function renderMedia(){
   const v = filtered[current];
-  const media = v.media;
 
   document.getElementById("mediaBox").innerHTML =
-    `<img src="${media[mediaIndex]}" onerror="this.src='https://via.placeholder.com/800x400'">`;
+    `<img src="${v.media[mediaIndex]}" onerror="this.src='https://via.placeholder.com/800x400'">`;
 
   document.getElementById("dots").innerHTML =
-    media.map((_,i)=>`
+    v.media.map((_,i)=>`
       <button class="dot ${i===mediaIndex?'active':''}" onclick="setMedia(${i})"></button>
     `).join("");
 }
 
 function setMedia(i){ mediaIndex=i; renderMedia(); }
-function next(){ mediaIndex = (mediaIndex+1)%filtered[current].media.length; renderMedia(); }
-function prev(){ mediaIndex = (mediaIndex-1+filtered[current].media.length)%filtered[current].media.length; renderMedia(); }
+function next(){ const v=filtered[current]; mediaIndex=(mediaIndex+1)%v.media.length; renderMedia(); }
+function prev(){ const v=filtered[current]; mediaIndex=(mediaIndex-1+v.media.length)%v.media.length; renderMedia(); }
 
-function closeModal(){
-  document.getElementById("modal").style.display="none";
-}
+function closeModal(){ document.getElementById("modal").style.display="none"; }
 
 function copyLink(){
   const v = filtered[current];
-  const url = `${location.origin}?stock=${v.stock}`;
-  navigator.clipboard.writeText(url);
+  navigator.clipboard.writeText(`${location.origin}?stock=${v.stock}`);
 }
 
 function runSearch(){ render(); }
 
-const script = document.createElement("script");
-script.src = URL;
+/* LOAD SHEET */
+const script=document.createElement("script");
+script.src=URL;
 document.body.appendChild(script);
 </script>
 
