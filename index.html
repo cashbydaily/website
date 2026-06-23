@@ -1,251 +1,513 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Inventory</title>
-
 <style>
-body{
-  margin:0;
-  font-family:Arial,sans-serif;
-  background:#fff;
-  color:#111;
-}
+  :root{
+    --border:#e7e7e7;
+    --text:#111;
+    --muted:#666;
+    --blue:#1877f2;
+    --dark:#111;
+    --bg:#fff;
+    --card:#fff;
+    --shadow:0 10px 28px rgba(0,0,0,.08);
+    --radius:14px;
+  }
 
-header{
-  text-align:center;
-  padding:30px;
-  border-bottom:1px solid #ddd;
-}
+  *{ box-sizing:border-box; }
+  body{
+    margin:0;
+    font-family: Arial, Helvetica, sans-serif;
+    background:var(--bg);
+    color:var(--text);
+  }
 
-h1{
-  margin:0;
-  font-size:42px;
-}
+  header{
+    padding:28px 20px;
+    text-align:center;
+    border-bottom:1px solid var(--border);
+    background:#fff;
+    position:sticky;
+    top:0;
+    z-index:5;
+  }
 
-.controls{
-  max-width:1400px;
-  margin:20px auto;
-  padding:0 20px;
-  display:flex;
-  gap:12px;
-  flex-wrap:wrap;
-}
+  header h1{
+    margin:0;
+    font-size:42px;
+    line-height:1.1;
+    letter-spacing:.5px;
+  }
 
-input,select{
-  padding:12px;
-  border:1px solid #ccc;
-  border-radius:8px;
-  font-size:15px;
-}
+  .controls{
+    max-width:1500px;
+    margin:20px auto 0;
+    padding:0 20px;
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+    align-items:center;
+  }
 
-input{
-  flex:1;
-  min-width:250px;
-}
+  .controls input,
+  .controls select{
+    height:46px;
+    border:1px solid #cfcfcf;
+    border-radius:10px;
+    padding:0 14px;
+    font-size:15px;
+    background:#fff;
+    color:#111;
+    outline:none;
+  }
 
-.inventory{
-  max-width:1600px;
-  margin:auto;
-  padding:20px;
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
-  gap:20px;
-}
+  .controls input{
+    flex:1 1 260px;
+    min-width:240px;
+  }
 
-.card{
-  border:1px solid #e5e5e5;
-  border-radius:12px;
-  overflow:hidden;
-  background:#fff;
-}
+  .controls select{
+    flex:0 0 220px;
+  }
 
-.card img{
-  width:100%;
-  height:220px;
-  object-fit:cover;
-  background:#f5f5f5;
-}
+  .meta{
+    max-width:1500px;
+    margin:10px auto 0;
+    padding:0 20px;
+    color:var(--muted);
+    font-size:14px;
+  }
 
-.info{
-  padding:15px;
-}
+  .status-line{
+    max-width:1500px;
+    margin:6px auto 0;
+    padding:0 20px;
+    font-size:14px;
+    color:var(--muted);
+    min-height:20px;
+  }
 
-.title{
-  font-size:18px;
-  font-weight:600;
-  margin-bottom:6px;
-}
+  .inventory{
+    max-width:1500px;
+    margin:18px auto 40px;
+    padding:0 20px;
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));
+    gap:20px;
+  }
 
-.price{
-  font-size:24px;
-  font-weight:700;
-  margin-bottom:8px;
-}
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    overflow:hidden;
+    transition:transform .16s ease, box-shadow .16s ease;
+  }
 
-.details{
-  color:#666;
-  margin-bottom:12px;
-  line-height:1.4;
-}
+  .card:hover{
+    transform:translateY(-3px);
+    box-shadow:var(--shadow);
+  }
 
-.btn{
-  display:block;
-  text-align:center;
-  padding:10px;
-  border-radius:8px;
-  text-decoration:none;
-  font-weight:600;
-  background:#1877f2;
-  color:#fff;
-}
+  .main-image{
+    width:100%;
+    height:220px;
+    object-fit:cover;
+    display:block;
+    background:#f5f5f5;
+  }
+
+  .thumbs{
+    display:flex;
+    gap:8px;
+    padding:10px 12px 0;
+    flex-wrap:wrap;
+  }
+
+  .thumb{
+    width:56px;
+    height:56px;
+    border:1px solid #ddd;
+    border-radius:10px;
+    overflow:hidden;
+    padding:0;
+    background:#fff;
+    cursor:pointer;
+    flex:0 0 auto;
+  }
+
+  .thumb img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+  }
+
+  .info{
+    padding:14px 14px 16px;
+  }
+
+  .title{
+    font-size:18px;
+    font-weight:700;
+    margin:0 0 8px;
+    line-height:1.3;
+  }
+
+  .price{
+    font-size:28px;
+    font-weight:800;
+    margin:0 0 8px;
+  }
+
+  .details{
+    color:var(--muted);
+    font-size:14px;
+    line-height:1.5;
+    margin-bottom:14px;
+    min-height:42px;
+  }
+
+  .chips{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-bottom:14px;
+  }
+
+  .chip{
+    font-size:12px;
+    padding:6px 10px;
+    border:1px solid #ddd;
+    border-radius:999px;
+    background:#fafafa;
+    color:#333;
+  }
+
+  .status-chip.in-stock{
+    background:#e7f7ea;
+    color:#1f7a3f;
+    border-color:#cfe9d3;
+  }
+
+  .status-chip.sold{
+    background:#ffe5e5;
+    color:#a30000;
+    border-color:#f4caca;
+  }
+
+  .buttons{
+    display:flex;
+    gap:10px;
+  }
+
+  .btn{
+    flex:1;
+    text-decoration:none;
+    text-align:center;
+    padding:12px 10px;
+    border-radius:10px;
+    font-weight:700;
+    font-size:14px;
+  }
+
+  .btn.primary{
+    background:var(--blue);
+    color:#fff;
+  }
+
+  .btn.secondary{
+    background:var(--dark);
+    color:#fff;
+  }
+
+  .empty{
+    grid-column:1/-1;
+    padding:26px;
+    border:1px dashed #ccc;
+    border-radius:14px;
+    text-align:center;
+    color:var(--muted);
+    background:#fff;
+  }
+
+  .error{
+    grid-column:1/-1;
+    padding:26px;
+    border:1px solid #f0c3c3;
+    border-radius:14px;
+    text-align:center;
+    color:#8b1e1e;
+    background:#fff6f6;
+  }
+
+  @media (max-width: 640px){
+    header h1{ font-size:34px; }
+    .controls select{ flex:1 1 220px; }
+    .main-image{ height:200px; }
+    .price{ font-size:25px; }
+  }
 </style>
 </head>
-
 <body>
 
 <header>
-<h1>Inventory</h1>
+  <h1>Inventory</h1>
 </header>
 
 <div class="controls">
-<input id="search" placeholder="Search inventory...">
+  <input id="search" type="text" placeholder="Search inventory..." />
 
-<select id="sort">
-<option value="">Sort</option>
-<option value="priceLow">Price Low → High</option>
-<option value="priceHigh">Price High → Low</option>
-<option value="yearNew">Year New → Old</option>
-<option value="yearOld">Year Old → New</option>
-</select>
+  <select id="typeFilter">
+    <option value="">All Types</option>
+    <option value="coupe">Coupe</option>
+    <option value="sedan">Sedan</option>
+    <option value="suv">SUV</option>
+    <option value="truck">Truck</option>
+    <option value="other">Other</option>
+  </select>
+
+  <select id="sort">
+    <option value="yearNew">Year High → Low</option>
+    <option value="yearOld">Year Low → High</option>
+    <option value="priceLow">Price Low → High</option>
+    <option value="priceHigh">Price High → Low</option>
+    <option value="stockAz">Stock A → Z</option>
+    <option value="stockZa">Stock Z → A</option>
+  </select>
 </div>
 
+<div class="meta" id="meta">Loading inventory...</div>
+<div class="status-line" id="statusLine"></div>
 <div class="inventory" id="inventory"></div>
 
 <script>
+  const SHEET_ID = "1LGeq8OOEyDZUbEAKPsyOeMKIpBt2gRQGpFL22UZ3szI";
+  const GID = 0;
 
-const SHEET_URL =
-"https://docs.google.com/spreadsheets/d/1LGeq8OOEyDZUbEAKPsyOeMKIpBt2gRQGpFL22UZ3szI/gviz/tq?tqx=out:json";
+  const SHEET_URL =
+    `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?gid=${GID}&headers=1&tqx=out:json;responseHandler:inventorySheetLoaded`;
 
-let vehicles = [];
+  const PLACEHOLDER_IMAGE =
+    "data:image/svg+xml;charset=UTF-8," +
+    encodeURIComponent(`
+      <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800">
+        <rect width="1200" height="800" fill="#f3f3f3"/>
+        <rect x="120" y="170" width="960" height="460" rx="30" fill="#e5e5e5"/>
+        <text x="600" y="420" font-family="Arial, Helvetica, sans-serif" font-size="54" text-anchor="middle" fill="#888">
+          No Photo Available
+        </text>
+      </svg>
+    `);
 
-function parseSheet(text){
-  const json = JSON.parse(text.substring(text.indexOf('{'), text.lastIndexOf('}') + 1));
-  const rows = json.table.rows;
+  let vehicles = [];
 
-  return rows.map(r => ({
+  const inventoryEl = document.getElementById("inventory");
+  const metaEl = document.getElementById("meta");
+  const statusEl = document.getElementById("statusLine");
+  const searchEl = document.getElementById("search");
+  const sortEl = document.getElementById("sort");
+  const typeFilterEl = document.getElementById("typeFilter");
 
-    year: r.c?.[0]?.v || "",
-    make: r.c?.[1]?.v || "",
-    model: r.c?.[2]?.v || "",
-    type: r.c?.[3]?.v || "",
-    price: Number(r.c?.[4]?.v || 0),
-    stock: r.c?.[5]?.v || "",
-    status: (r.c?.[6]?.v || "").toLowerCase(),
-    images: (r.c?.[7]?.v || "").split(";").map(x => x.trim()).filter(Boolean)
+  function escapeHtml(value) {
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#39;");
+  }
 
-  }));
-}
+  function toNumber(value) {
+    const n = Number(String(value ?? "").replace(/[^0-9.-]/g, ""));
+    return Number.isFinite(n) ? n : 0;
+  }
 
-async function loadData(){
+  function parseImages(description) {
+    return String(description ?? "")
+      .split(";")
+      .map(s => s.trim())
+      .filter(Boolean);
+  }
 
-try{
+  function normalizeText(v) {
+    return String(v ?? "").trim();
+  }
 
-const res = await fetch(SHEET_URL);
-const text = await res.text();
+  function vehicleSort(a, b, mode) {
+    const yearA = toNumber(a.year);
+    const yearB = toNumber(b.year);
+    const priceA = toNumber(a.price);
+    const priceB = toNumber(b.price);
+    const stockA = normalizeText(a.stock).toLowerCase();
+    const stockB = normalizeText(b.stock).toLowerCase();
 
-vehicles = parseSheet(text)
-.filter(v => v.status === "available");
+    switch (mode) {
+      case "priceLow":
+        return priceA - priceB;
+      case "priceHigh":
+        return priceB - priceA;
+      case "yearOld":
+        return yearA - yearB;
+      case "yearNew":
+        return yearB - yearA;
+      case "stockAz":
+        return stockA.localeCompare(stockB, undefined, { numeric: true, sensitivity: "base" });
+      case "stockZa":
+        return stockB.localeCompare(stockA, undefined, { numeric: true, sensitivity: "base" });
+      default:
+        return yearB - yearA;
+    }
+  }
 
-render();
+  function setCardImage(cardId, imageUrl) {
+    const img = document.getElementById(`main-img-${cardId}`);
+    if (img && imageUrl) img.src = imageUrl;
+  }
 
-}catch(err){
-console.log(err);
-document.getElementById("inventory").innerHTML =
-"<p style='padding:20px'>Failed to load inventory. Check sheet sharing settings.</p>";
-}
+  window.setCardImage = setCardImage;
 
-}
+  function render() {
+    const query = searchEl.value.trim().toLowerCase();
+    const sortMode = sortEl.value;
+    const typeFilter = typeFilterEl.value.trim().toLowerCase();
 
-function render(){
+    let list = [...vehicles];
 
-let list = [...vehicles];
+    if (query || typeFilter) {
+      list = list.filter(v => {
+        const haystack = [
+          v.year, v.make, v.model, v.type, v.price, v.stock, v.status
+        ].join(" ").toLowerCase();
 
-const q = document.getElementById("search").value.toLowerCase();
+        const matchSearch = query ? haystack.includes(query) : true;
+        const matchType = typeFilter ? v.type.toLowerCase() === typeFilter : true;
 
-list = list.filter(v =>
-`${v.year} ${v.make} ${v.model} ${v.type} ${v.stock}`
-.toLowerCase()
-.includes(q)
-);
+        return matchSearch && matchType;
+      });
+    }
 
-const sort = document.getElementById("sort").value;
+    list.sort((a, b) => vehicleSort(a, b, sortMode));
 
-switch(sort){
+    metaEl.textContent = `${list.length} vehicle${list.length === 1 ? "" : "s"} found`;
 
-case "priceLow":
-list.sort((a,b)=>a.price-b.price);
-break;
+    if (!list.length) {
+      inventoryEl.innerHTML = `<div class="empty">No in-stock inventory found.</div>`;
+      return;
+    }
 
-case "priceHigh":
-list.sort((a,b)=>b.price-a.price);
-break;
+    inventoryEl.innerHTML = list.map((v, index) => {
+      const images = v.images.length ? v.images : [PLACEHOLDER_IMAGE];
+      const cardId = `${index}-${String(v.stock).replace(/[^a-z0-9_-]/gi, "") || "car"}`;
+      const mainImage = escapeHtml(images[0]);
+      const title = `${escapeHtml(v.year)} ${escapeHtml(v.make)} ${escapeHtml(v.model)}`.trim();
+      const typeLine = escapeHtml(v.type);
+      const stockLine = escapeHtml(v.stock);
+      const priceLine = Number(toNumber(v.price)).toLocaleString();
+      const statusClass = v.status === "sold" ? "sold" : "in-stock";
+      const statusLabel = v.status ? v.status.toUpperCase() : "IN-STOCK";
 
-case "yearNew":
-list.sort((a,b)=>b.year-a.year);
-break;
+      const thumbs = images.slice(0, 6).map((img, i) => `
+        <button class="thumb" type="button" onclick="setCardImage('${cardId}', '${String(img).replaceAll("'", "\\'")}')">
+          <img src="${escapeHtml(img)}" alt="Photo ${i + 1}">
+        </button>
+      `).join("");
 
-case "yearOld":
-list.sort((a,b)=>a.year-b.year);
-break;
+      return `
+        <article class="card">
+          <img
+            id="main-img-${cardId}"
+            class="main-image"
+            src="${mainImage}"
+            alt="${title}"
+            onerror="this.src='${PLACEHOLDER_IMAGE}'"
+          >
 
-}
+          ${images.length > 1 ? `<div class="thumbs">${thumbs}</div>` : ""}
 
-document.getElementById("inventory").innerHTML =
-list.map(v => {
+          <div class="info">
+            <div class="chips">
+              <span class="chip status-chip ${statusClass}">${statusLabel}</span>
+              ${v.type ? `<span class="chip">${escapeHtml(v.type)}</span>` : ""}
+            </div>
 
-const img = v.images[0] || "https://via.placeholder.com/600x400?text=No+Image";
+            <div class="title">${title}</div>
+            <div class="price">$${priceLine}</div>
 
-return `
-<div class="card">
+            <div class="details">
+              ${typeLine ? `${typeLine}<br>` : ""}
+              ${stockLine ? `Stock: ${stockLine}` : ""}
+            </div>
 
-<img src="${img}">
+            <div class="buttons">
+              <a class="btn primary" href="https://www.cashbydaily.com/inquiry" target="_blank" rel="noopener">Schedule</a>
+              <a class="btn secondary" href="javascript:void(0)" onclick="navigator.clipboard.writeText('${escapeHtml(stockLine).replaceAll("'", "\\'")}')">Copy Stock</a>
+            </div>
+          </div>
+        </article>
+      `;
+    }).join("");
+  }
 
-<div class="info">
+  function loadSheetViaScript() {
+    statusEl.textContent = "Loading sheet...";
 
-<div class="title">
-${v.year} ${v.make} ${v.model}
-</div>
+    const existing = document.getElementById("sheet-loader");
+    if (existing) existing.remove();
 
-<div class="price">
-$${Number(v.price).toLocaleString()}
-</div>
+    const script = document.createElement("script");
+    script.id = "sheet-loader";
+    script.async = true;
+    script.src = `${SHEET_URL}&_=${Date.now()}`;
 
-<div class="details">
-${v.type}<br>
-Stock: ${v.stock}
-</div>
+    script.onerror = () => {
+      metaEl.textContent = "Could not load the sheet.";
+      statusEl.textContent = "";
+      inventoryEl.innerHTML = `
+        <div class="error">
+          The inventory did not load. Make sure the sheet is shared as <strong>Anyone with the link</strong> or <strong>Public on the web</strong>, and that row 1 contains:
+          <br><br>
+          Year | Make | Model | Type | Price | Stock | Status | Description
+        </div>
+      `;
+    };
 
-<a class="btn" href="https://www.cashbydaily.com/inquiry" target="_blank">
-Schedule
-</a>
+    document.body.appendChild(script);
+  }
 
-</div>
+  window.inventorySheetLoaded = function(data) {
+    try {
+      const rows = data?.table?.rows || [];
 
-</div>
-`;
+      vehicles = rows.map(row => ({
+        year: normalizeText(row.c?.[0]?.v || ""),
+        make: normalizeText(row.c?.[1]?.v || ""),
+        model: normalizeText(row.c?.[2]?.v || ""),
+        type: normalizeText(row.c?.[3]?.v || ""),
+        price: normalizeText(row.c?.[4]?.v || ""),
+        stock: normalizeText(row.c?.[5]?.v || ""),
+        status: normalizeText(row.c?.[6]?.v || "").toLowerCase(),
+        images: parseImages(row.c?.[7]?.v || "")
+      })).filter(v => v.status === "in-stock");
 
-}).join("");
+      statusEl.textContent = "";
+      render();
+    } catch (err) {
+      console.error(err);
+      metaEl.textContent = "Inventory load error.";
+      statusEl.textContent = "";
+      inventoryEl.innerHTML = `<div class="error">The sheet loaded, but the data format did not match the expected columns.</div>`;
+    }
+  };
 
-}
+  searchEl.addEventListener("input", render);
+  sortEl.addEventListener("change", render);
+  typeFilterEl.addEventListener("change", render);
 
-document.getElementById("search").addEventListener("input",render);
-document.getElementById("sort").addEventListener("change",render);
-
-loadData();
-
+  loadSheetViaScript();
 </script>
-
 </body>
 </html>
