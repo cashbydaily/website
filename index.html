@@ -18,9 +18,10 @@
   }
 
   *{ box-sizing:border-box; }
+
   body{
     margin:0;
-    font-family: Arial, Helvetica, sans-serif;
+    font-family:Arial, Helvetica, sans-serif;
     background:var(--bg);
     color:var(--text);
   }
@@ -336,7 +337,17 @@
   function normalizeStatus(v) {
     return String(v ?? "")
       .toLowerCase()
-      .replace(/[^a-z0-9]/g, "");
+      .trim()
+      .replace(/[^a-z]/g, "");
+  }
+
+  function isInStock(status) {
+    const s = normalizeStatus(status);
+    return s === "instock" || s === "insock" || s === "instock";
+  }
+
+  function isSold(status) {
+    return normalizeStatus(status) === "sold";
   }
 
   function vehicleSort(a, b, mode) {
@@ -411,10 +422,10 @@
       const priceLine = Number(toNumber(v.price)).toLocaleString();
 
       const statusNormalized = normalizeStatus(v.status);
-      const isSold = statusNormalized.includes("sold");
-      const isInStock = statusNormalized.includes("instock") || statusNormalized.includes("instock");
-      const statusClass = isSold ? "sold" : "in-stock";
-      const statusLabel = isSold ? "SOLD" : (isInStock ? "IN STOCK" : (v.status ? v.status.toUpperCase() : "IN STOCK"));
+      const sold = isSold(v.status);
+      const inStock = isInStock(v.status);
+      const statusClass = sold ? "sold" : "in-stock";
+      const statusLabel = sold ? "SOLD" : (inStock ? "IN STOCK" : "IN STOCK");
 
       const thumbs = images.slice(0, 6).map((img, i) => `
         <button class="thumb" type="button" onclick="setCardImage('${cardId}', '${String(img).replaceAll("'", "\\'")}')">
@@ -500,17 +511,11 @@
       }));
 
       const total = vehicles.length;
-      const inStockCount = vehicles.filter(v => {
-        const s = normalizeStatus(v.status);
-        return s.includes("instock") || s.includes("instk");
-      }).length;
+      const inStockCount = vehicles.filter(v => isInStock(v.status)).length;
 
       statusEl.textContent = `Loaded ${total} rows. In-stock rows detected: ${inStockCount}.`;
 
-      vehicles = vehicles.filter(v => {
-        const s = normalizeStatus(v.status);
-        return s.includes("instock") || s.includes("instk");
-      });
+      vehicles = vehicles.filter(v => isInStock(v.status));
 
       render();
     } catch (err) {
