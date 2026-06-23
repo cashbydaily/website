@@ -1,1 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Inventory</title>
 
+<style>
+body{
+    margin:0;
+    font-family:Arial,sans-serif;
+    background:#fff;
+    color:#111;
+}
+
+header{
+    text-align:center;
+    padding:30px;
+    border-bottom:1px solid #ddd;
+}
+
+h1{
+    margin:0;
+    font-size:42px;
+}
+
+.controls{
+    max-width:1400px;
+    margin:20px auto;
+    padding:0 20px;
+    display:flex;
+    gap:12px;
+    flex-wrap:wrap;
+}
+
+input,select{
+    padding:12px;
+    border:1px solid #ccc;
+    border-radius:8px;
+    font-size:15px;
+}
+
+input{
+    flex:1;
+    min-width:250px;
+}
+
+.inventory{
+    max-width:1600px;
+    margin:auto;
+    padding:20px;
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
+    gap:20px;
+}
+
+.card{
+    border:1px solid #e5e5e5;
+    border-radius:12px;
+    overflow:hidden;
+    background:#fff;
+    transition:.2s;
+}
+
+.card:hover{
+    transform:translateY(-3px);
+    box-shadow:0 10px 25px rgba(0,0,0,.08);
+}
+
+.info{
+    padding:15px;
+}
+
+.title{
+    font-size:18px;
+    font-weight:600;
+    margin-bottom:6px;
+}
+
+.price{
+    font-size:24px;
+    font-weight:700;
+    margin-bottom:8px;
+}
+
+.details{
+    color:#666;
+    margin-bottom:12px;
+    line-height:1.4;
+}
+
+.buttons{
+    display:flex;
+    gap:10px;
+}
+
+.btn{
+    flex:1;
+    padding:10px;
+    text-align:center;
+    border-radius:8px;
+    text-decoration:none;
+    font-weight:600;
+}
+
+.marketplace{
+    background:#1877f2;
+    color:#fff;
+}
+
+.schedule{
+    background:#111;
+    color:#fff;
+}
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>Inventory</h1>
+</header>
+
+<div class="controls">
+<input id="search" placeholder="Search inventory...">
+
+<select id="sort">
+<option value="">Sort</option>
+<option value="priceLow">Price Low → High</option>
+<option value="priceHigh">Price High → Low</option>
+</select>
+</div>
+
+<div class="inventory" id="inventory"></div>
+
+<script>
+
+const SHEET_URL =
+"https://docs.google.com/spreadsheets/d/1LGeq8OOEyDZUbEAKPsyOeMKIpBt2gRQGpFL22UZ3szI/gviz/tq?tqx=out:json";
+
+let vehicles = [];
+
+/*
+COLUMN ORDER:
+0 Year
+1 Make
+2 Model
+3 Type
+4 Price
+5 Stock
+6 Status
+7 Description
+*/
+
+async function loadData(){
+
+try{
+
+const res = await fetch(SHEET_URL);
+const text = await res.text();
+const json = JSON.parse(text.substring(47).slice(0,-2));
+
+vehicles = json.table.rows.map(r => ({
+
+year: r.c?.[0]?.v || "",
+make: r.c?.[1]?.v || "",
+model: r.c?.[2]?.v || "",
+type: r.c?.[3]?.v || "",
+price: Number(r.c?.[4]?.v || 0),
+stock: r.c?.[5]?.v || "",
+status: (r.c?.[6]?.v || "").toString().toLowerCase(),
+desc: r.c?.[7]?.v || ""
+
+}))
+.filter(v => v.status === "available");
+
+render();
+
+}catch(err){
+console.log("Sheet load error:",err);
+document.getElementById("inventory").innerHTML =
+"<p style='padding:20px'>Failed to load inventory. Check sheet sharing settings.</p>";
+}
+
+}
+
+function render(){
+
+let list = [...vehicles];
+
+const q = document.getElementById("search").value.toLowerCase();
+
+list = list.filter(v =>
+`${v.year} ${v.make} ${v.model} ${v.type} ${v.stock} ${v.desc}`
+.toLowerCase()
+.includes(q)
+);
+
+const sort = document.getElementById("sort").value;
+
+switch(sort){
+
+case "priceLow":
+list.sort((a,b)=>a.price-b.price);
+break;
+
+case "priceHigh":
+list.sort((a,b)=>b.price-a.price);
+break;
+
+}
+
+document.getElementById("inventory").innerHTML =
+list.map(v => `
+
+<div class="card">
+
+<div class="info">
+
+<div class="title">
+${v.year} ${v.make} ${v.model}
+</div>
+
+<div class="price">
+$${Number(v.price).toLocaleString()}
+</div>
+
+<div class="details">
+${v.type}<br>
+Stock: ${v.stock}<br>
+${v.desc}
+</div>
+
+<div class="buttons">
+
+<a class="btn marketplace" href="#" target="_blank">
+View
+</a>
+
+<a class="btn schedule" href="https://www.cashbydaily.com/inquiry" target="_blank">
+Schedule
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+`).join("");
+
+}
+
+document.getElementById("search").addEventListener("input",render);
+document.getElementById("sort").addEventListener("change",render);
+
+loadData();
+
+</script>
+
+</body>
+</html>
