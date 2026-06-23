@@ -189,9 +189,13 @@
     background: #555;
   }
 
-  .dot.active { background: #fff; }
+  .dot.active {
+    background: #fff;
+  }
 
-  .info { padding: 14px; }
+  .info {
+    padding: 14px;
+  }
 
   .grid2 {
     display: grid;
@@ -218,6 +222,7 @@
   .primary { background: #1877f2; color: #fff; }
   .dark { background: #111; color: #fff; }
   .light { background: #eee; }
+
 </style>
 </head>
 
@@ -253,7 +258,7 @@
 <!-- DETAILS -->
 <div class="modal" id="modal">
   <div class="panel">
-
+    
     <div class="media">
       <div id="mediaBox"></div>
 
@@ -292,13 +297,6 @@ let filtered = [];
 let current = 0;
 let mediaIndex = 0;
 
-/* ---------------- URL STOCK AUTO SEARCH ---------------- */
-function getStockFromURL() {
-  const params = new URLSearchParams(window.location.search);
-  return (params.get("stock") || "").trim();
-}
-
-/* ---------------- DATA ---------------- */
 function parseMedia(desc=""){
   return desc.split(";").map(x=>x.trim()).filter(Boolean);
 }
@@ -317,15 +315,8 @@ function loadData(res){
   }));
 
   render();
-
-  const stock = getStockFromURL();
-  if (stock) {
-    document.getElementById("search").value = stock;
-    render();
-  }
 }
 
-/* ---------------- RENDER ---------------- */
 function render(){
   const q = document.getElementById("search").value.toLowerCase();
   const type = document.getElementById("type").value;
@@ -353,7 +344,6 @@ function render(){
   `).join("");
 }
 
-/* ---------------- DETAILS ---------------- */
 function openDetails(i){
   current = i;
   mediaIndex = 0;
@@ -389,24 +379,21 @@ function renderMedia(){
 }
 
 function setMedia(i){ mediaIndex=i; renderMedia(); }
-function next(){ mediaIndex=(mediaIndex+1)%filtered[current].media.length; renderMedia(); }
-function prev(){ mediaIndex=(mediaIndex-1+filtered[current].media.length)%filtered[current].media.length; renderMedia(); }
+function next(){ mediaIndex = (mediaIndex+1)%filtered[current].media.length; renderMedia(); }
+function prev(){ mediaIndex = (mediaIndex-1+filtered[current].media.length)%filtered[current].media.length; renderMedia(); }
 
 function closeModal(){
   document.getElementById("modal").style.display="none";
 }
 
-/* ---------------- SEARCH ---------------- */
-function runSearch(){ render(); }
-
-/* ---------------- SHARE ---------------- */
 function copyLink(){
   const v = filtered[current];
   const url = `${location.origin}?stock=${v.stock}`;
   navigator.clipboard.writeText(url);
 }
 
-/* ---------------- LOAD SHEET ---------------- */
+function runSearch(){ render(); }
+
 const script = document.createElement("script");
 script.src = URL;
 document.body.appendChild(script);
