@@ -4,6 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Inventory</title>
+
 <style>
   :root{
     --border:#e7e7e7;
@@ -19,8 +20,9 @@
 
   *{ box-sizing:border-box; }
 
-  body{
+  html, body{
     margin:0;
+    padding:0;
     font-family:Arial, Helvetica, sans-serif;
     background:var(--bg);
     color:var(--text);
@@ -244,6 +246,7 @@
     background:#fff6f6;
   }
 
+  /* GALLERY MODAL */
   .modal{
     display:none;
     position:fixed;
@@ -255,38 +258,16 @@
     padding:20px;
   }
 
-  .modal-panel{
-    width:min(1100px, 100%);
-    max-height:92vh;
-    overflow:auto;
-    background:#fff;
-    border-radius:18px;
-    box-shadow:0 20px 60px rgba(0,0,0,.35);
-    position:relative;
-  }
-
+  .gallery-close,
   .modal-close{
-    position:absolute;
-    top:12px;
-    right:16px;
-    font-size:28px;
-    line-height:1;
-    border:none;
-    background:transparent;
-    cursor:pointer;
-    color:#fff;
-    z-index:2;
-  }
-
-  .gallery-close{
-    color:#fff;
     position:fixed;
     top:16px;
     right:22px;
-    z-index:10001;
     font-size:34px;
+    color:#fff;
     cursor:pointer;
     user-select:none;
+    z-index:10001;
   }
 
   .gallery-wrap{
@@ -298,6 +279,14 @@
     color:#fff;
   }
 
+  .gallery-stage{
+    width:100%;
+    position:relative;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+  }
+
   .gallery-main{
     width:min(100%, 1100px);
     max-height:72vh;
@@ -305,6 +294,28 @@
     background:#111;
     border-radius:14px;
   }
+
+  .arrow-btn{
+    position:absolute;
+    top:50%;
+    transform:translateY(-50%);
+    width:48px;
+    height:48px;
+    border:none;
+    border-radius:999px;
+    background:rgba(255,255,255,.92);
+    color:#111;
+    font-size:28px;
+    line-height:1;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow:0 8px 20px rgba(0,0,0,.25);
+  }
+
+  .arrow-btn.left{ left:12px; }
+  .arrow-btn.right{ right:12px; }
 
   .gallery-controls{
     display:flex;
@@ -353,39 +364,93 @@
     display:block;
   }
 
-  .details-grid{
-    display:grid;
-    grid-template-columns: 1.1fr .9fr;
-    gap:20px;
-    padding:22px;
+  /* DETAILS VDP OVERLAY */
+  .modal-panel{
+    width:min(1100px, 100%);
+    max-height:92vh;
+    overflow:auto;
+    background:#fff;
+    border-radius:18px;
+    box-shadow:0 20px 60px rgba(0,0,0,.35);
+    position:relative;
   }
 
-  .details-img{
+  .wrap{
     width:100%;
-    height:420px;
+    max-width:1100px;
+    margin:0 auto;
+    background:#fff;
+    color:#111;
+  }
+
+  .video{
+    width:100%;
+    aspect-ratio:16 / 9;
+    background:#000;
+  }
+
+  .video img{
+    width:100%;
+    height:100%;
     object-fit:cover;
-    border-radius:14px;
-    background:#f5f5f5;
     display:block;
   }
 
-  .details-title{
-    font-size:30px;
-    font-weight:800;
-    margin:0 0 10px;
+  .content{
+    padding:14px;
   }
 
-  .details-price{
-    font-size:36px;
-    font-weight:800;
-    margin:0 0 12px;
+  .content .title{
+    font-size:20px;
+    font-weight:600;
+    margin-bottom:4px;
   }
 
-  .details-meta{
+  .subtitle{
+    font-size:14px;
     color:#555;
-    line-height:1.6;
-    margin-bottom:16px;
-    white-space:pre-line;
+    margin-bottom:10px;
+  }
+
+  .content .price{
+    font-size:18px;
+    font-weight:700;
+    margin-bottom:14px;
+  }
+
+  .grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px 14px;
+    font-size:13px;
+  }
+
+  .grid div{
+    padding:6px 0;
+    border-bottom:1px solid #eee;
+  }
+
+  .label{
+    color:#777;
+    font-size:12px;
+  }
+
+  .cta{
+    padding:14px;
+    border-top:1px solid #eee;
+    background:#fff;
+  }
+
+  .cta .btn{
+    display:block;
+    width:100%;
+    text-align:center;
+    padding:14px;
+    background:#111;
+    color:#fff;
+    text-decoration:none;
+    font-weight:600;
+    border-radius:6px;
   }
 
   .details-thumb-row{
@@ -413,25 +478,15 @@
     display:block;
   }
 
-  .details-actions{
-    display:flex;
-    gap:10px;
-    margin-top:18px;
-    flex-wrap:wrap;
-  }
-
-  .details-actions .btn{
-    flex:0 0 auto;
-    min-width:160px;
-  }
-
   @media (max-width: 860px){
-    .details-grid{
+    .grid{
       grid-template-columns:1fr;
     }
 
-    .details-img{
-      height:320px;
+    .arrow-btn{
+      width:44px;
+      height:44px;
+      font-size:24px;
     }
   }
 
@@ -440,7 +495,9 @@
     .controls select{ flex:1 1 220px; }
     .main-image{ height:200px; }
     .price{ font-size:25px; }
-    .details-price{ font-size:30px; }
+    .content .price{ font-size:16px; }
+    .arrow-btn.left{ left:8px; }
+    .arrow-btn.right{ right:8px; }
   }
 </style>
 </head>
@@ -476,24 +533,31 @@
 <div class="status-line" id="statusLine"></div>
 <div class="inventory" id="inventory"></div>
 
+<!-- GALLERY MODAL -->
 <div class="modal" id="galleryModal" aria-hidden="true">
   <div class="gallery-close" onclick="closeModal('galleryModal')">✕</div>
+
   <div class="gallery-wrap">
-    <img id="galleryMainImg" class="gallery-main" src="" alt="Vehicle image" />
-    <div class="gallery-controls">
-      <button class="gallery-btn" onclick="prevGalleryImage()">Prev</button>
-      <button class="gallery-btn" onclick="nextGalleryImage()">Next</button>
-      <button class="gallery-btn" onclick="closeModal('galleryModal')">Close</button>
+    <div class="gallery-stage">
+      <button class="arrow-btn left" type="button" onclick="prevGalleryImage()">‹</button>
+      <img id="galleryMainImg" class="gallery-main" src="" alt="Vehicle image" />
+      <button class="arrow-btn right" type="button" onclick="nextGalleryImage()">›</button>
     </div>
+
+    <div class="gallery-controls">
+      <button class="gallery-btn" type="button" onclick="prevGalleryImage()">Prev</button>
+      <button class="gallery-btn" type="button" onclick="nextGalleryImage()">Next</button>
+      <button class="gallery-btn" type="button" onclick="closeModal('galleryModal')">Close</button>
+    </div>
+
     <div class="gallery-thumbs" id="galleryThumbs"></div>
   </div>
 </div>
 
+<!-- DETAILS MODAL -->
 <div class="modal" id="detailsModal" aria-hidden="true">
-  <div class="modal-panel">
-    <button class="modal-close" onclick="closeModal('detailsModal')">×</button>
-    <div id="detailsBody"></div>
-  </div>
+  <div class="gallery-close" onclick="closeModal('detailsModal')">✕</div>
+  <div class="modal-panel" id="detailsBody"></div>
 </div>
 
 <script>
@@ -520,7 +584,6 @@
   let visibleVehicles = [];
   let currentGalleryImages = [];
   let currentGalleryIndex = 0;
-  let currentDetailsVehicle = null;
 
   const inventoryEl = document.getElementById("inventory");
   const metaEl = document.getElementById("meta");
@@ -633,11 +696,19 @@
     setGalleryImage(currentGalleryIndex - 1);
   }
 
-  function openGallery(vehicleIndex, startIndex = 0) {
-    const vehicle = visibleVehicles[vehicleIndex];
-    if (!vehicle) return;
+  function closeModal(id) {
+    const modal = document.getElementById(id);
+    if (modal) {
+      modal.style.display = "none";
+      modal.setAttribute("aria-hidden", "true");
+    }
+  }
 
-    const images = vehicle.images.length ? vehicle.images : [PLACEHOLDER_IMAGE];
+  function openGallery(index, startIndex = 0) {
+    const v = visibleVehicles[index];
+    if (!v) return;
+
+    const images = v.images.length ? v.images : [PLACEHOLDER_IMAGE];
     currentGalleryImages = images;
     currentGalleryIndex = Math.max(0, Math.min(startIndex, images.length - 1));
 
@@ -652,61 +723,58 @@
     galleryModal.setAttribute("aria-hidden", "false");
   }
 
-  function openDetails(vehicleIndex) {
-    const vehicle = visibleVehicles[vehicleIndex];
-    if (!vehicle) return;
+  function openDetails(index) {
+    const v = visibleVehicles[index];
+    if (!v) return;
 
-    currentDetailsVehicle = vehicle;
-    const images = vehicle.images.length ? vehicle.images : [PLACEHOLDER_IMAGE];
-    const mainImage = images[0] || PLACEHOLDER_IMAGE;
-    const sold = isSold(vehicle.status);
-    const inStock = isInStock(vehicle.status);
+    const images = v.images.length ? v.images : [PLACEHOLDER_IMAGE];
+    const title = `${v.year} ${v.make} ${v.model}`.trim();
+    const price = Number(toNumber(v.price)).toLocaleString();
+    const sold = isSold(v.status);
+    const inStock = isInStock(v.status);
     const statusLabel = sold ? "SOLD" : (inStock ? "IN STOCK" : "IN STOCK");
     const statusClass = sold ? "sold" : "in-stock";
 
-    const title = `${escapeHtml(vehicle.year)} ${escapeHtml(vehicle.make)} ${escapeHtml(vehicle.model)}`.trim();
-
     detailsBody.innerHTML = `
-      <div class="details-grid">
-        <div>
+      <div class="wrap">
+        <div class="video">
           <img
-            id="detailsMainImage"
-            class="details-img"
-            src="${escapeHtml(mainImage)}"
-            alt="${title}"
-            onerror="this.src='${PLACEHOLDER_IMAGE}'"
+            src="${escapeHtml(images[0])}"
             style="cursor:pointer"
-            onclick="openGallery(${vehicleIndex}, 0)"
-          >
+            alt="${escapeHtml(title)}"
+            onerror="this.src='${PLACEHOLDER_IMAGE}'"
+            onclick="openGallery(${index}, 0)"
+          />
+        </div>
+
+        <div class="content">
+          <div class="title">${escapeHtml(title)}</div>
+          <div class="subtitle">${escapeHtml(v.type)} • Stock: ${escapeHtml(v.stock)}</div>
+          <div class="price">$${price}</div>
+
+          <div class="grid">
+            <div><span class="label">Year</span><br>${escapeHtml(v.year)}</div>
+            <div><span class="label">Make</span><br>${escapeHtml(v.make)}</div>
+            <div><span class="label">Model</span><br>${escapeHtml(v.model)}</div>
+            <div><span class="label">Type</span><br>${escapeHtml(v.type)}</div>
+            <div><span class="label">Price</span><br>$${price}</div>
+            <div><span class="label">Stock</span><br>${escapeHtml(v.stock)}</div>
+            <div><span class="label">Status</span><br>${escapeHtml(statusLabel)}</div>
+            <div><span class="label">Photo Count</span><br>${images.length}</div>
+          </div>
+
           <div class="details-thumb-row">
             ${images.map((img, i) => `
-              <button class="details-thumb" type="button" onclick="openGallery(${vehicleIndex}, ${i})">
+              <button class="details-thumb" type="button" onclick="openGallery(${index}, ${i})">
                 <img src="${escapeHtml(img)}" alt="Photo ${i + 1}">
               </button>
             `).join("")}
           </div>
         </div>
+      </div>
 
-        <div>
-          <div class="chips" style="margin-bottom:12px;">
-            <span class="chip status-chip ${statusClass}">${statusLabel}</span>
-            ${vehicle.type ? `<span class="chip">${escapeHtml(vehicle.type)}</span>` : ""}
-          </div>
-
-          <div class="details-title">${title}</div>
-          <div class="details-price">$${Number(toNumber(vehicle.price)).toLocaleString()}</div>
-
-          <div class="details-meta">
-Type: ${escapeHtml(vehicle.type)}
-Stock: ${escapeHtml(vehicle.stock)}
-Status: ${escapeHtml(vehicle.status)}
-          </div>
-
-          <div class="details-actions">
-            <a class="btn primary" href="${SCHEDULE_URL}" target="_blank" rel="noopener">Schedule</a>
-            <button class="btn secondary" type="button" onclick="openGallery(${vehicleIndex}, 0)">Details</button>
-          </div>
-        </div>
+      <div class="cta">
+        <a class="btn" href="${SCHEDULE_URL}" target="_blank" rel="noopener">Schedule Appointment</a>
       </div>
     `;
 
@@ -714,15 +782,7 @@ Status: ${escapeHtml(vehicle.status)}
     detailsModal.setAttribute("aria-hidden", "false");
   }
 
-  function closeModal(id) {
-    const modal = document.getElementById(id);
-    if (modal) {
-      modal.style.display = "none";
-      modal.setAttribute("aria-hidden", "true");
-    }
-  }
-
-  function validateImageUrl(url, timeoutMs = 8000) {
+  async function validateImageUrl(url, timeoutMs = 8000) {
     return new Promise(resolve => {
       if (!url) return resolve(null);
 
@@ -879,8 +939,8 @@ Status: ${escapeHtml(vehicle.status)}
       }));
 
       const total = vehicles.length;
-      const inStockBeforeValidation = vehicles.filter(v => isInStock(v.status)).length;
-      statusEl.textContent = `Loaded ${total} rows. In-stock rows detected: ${inStockBeforeValidation}. Validating images...`;
+      const detected = vehicles.filter(v => isInStock(v.status)).length;
+      statusEl.textContent = `Loaded ${total} rows. In-stock rows detected: ${detected}. Validating images...`;
 
       vehicles = vehicles.filter(v => isInStock(v.status));
 
