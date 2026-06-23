@@ -1,268 +1,483 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Inventory</title>
-
 <style>
-body{
+  :root{
+    --border:#e7e7e7;
+    --text:#111;
+    --muted:#666;
+    --blue:#1877f2;
+    --dark:#111;
+    --bg:#fff;
+    --card:#fff;
+    --shadow:0 10px 28px rgba(0,0,0,.08);
+    --radius:14px;
+  }
+
+  *{ box-sizing:border-box; }
+  body{
     margin:0;
-    font-family:Arial,sans-serif;
-    background:#fff;
-    color:#111;
-}
+    font-family: Arial, Helvetica, sans-serif;
+    background:var(--bg);
+    color:var(--text);
+  }
 
-header{
+  header{
+    padding:28px 20px;
     text-align:center;
-    padding:30px;
-    border-bottom:1px solid #ddd;
-}
+    border-bottom:1px solid var(--border);
+    background:#fff;
+    position:sticky;
+    top:0;
+    z-index:5;
+  }
 
-h1{
+  header h1{
     margin:0;
     font-size:42px;
-    letter-spacing:1px;
-}
+    line-height:1.1;
+    letter-spacing:.5px;
+  }
 
-.controls{
-    max-width:1400px;
-    margin:20px auto;
+  .controls{
+    max-width:1500px;
+    margin:20px auto 0;
     padding:0 20px;
     display:flex;
     gap:12px;
     flex-wrap:wrap;
-}
+    align-items:center;
+  }
 
-input,select{
-    padding:12px;
-    border:1px solid #ccc;
-    border-radius:8px;
+  .controls input,
+  .controls select{
+    height:46px;
+    border:1px solid #cfcfcf;
+    border-radius:10px;
+    padding:0 14px;
     font-size:15px;
-}
-
-input{
-    flex:1;
-    min-width:250px;
-}
-
-.inventory{
-    max-width:1600px;
-    margin:auto;
-    padding:20px;
-    display:grid;
-    grid-template-columns:repeat(auto-fill,minmax(300px,1fr));
-    gap:20px;
-}
-
-.card{
-    border:1px solid #e5e5e5;
-    border-radius:12px;
-    overflow:hidden;
     background:#fff;
-    transition:.2s;
-}
+    color:#111;
+    outline:none;
+  }
 
-.card:hover{
+  .controls input{
+    flex:1 1 260px;
+    min-width:240px;
+  }
+
+  .controls select{
+    flex:0 0 220px;
+  }
+
+  .meta{
+    max-width:1500px;
+    margin:10px auto 0;
+    padding:0 20px;
+    color:var(--muted);
+    font-size:14px;
+  }
+
+  .status-line{
+    max-width:1500px;
+    margin:6px auto 0;
+    padding:0 20px;
+    font-size:14px;
+    color:var(--muted);
+    min-height:20px;
+  }
+
+  .inventory{
+    max-width:1500px;
+    margin:18px auto 40px;
+    padding:0 20px;
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));
+    gap:20px;
+  }
+
+  .card{
+    background:var(--card);
+    border:1px solid var(--border);
+    border-radius:var(--radius);
+    overflow:hidden;
+    box-shadow:none;
+    transition:transform .16s ease, box-shadow .16s ease;
+  }
+
+  .card:hover{
     transform:translateY(-3px);
-    box-shadow:0 10px 25px rgba(0,0,0,.08);
-}
+    box-shadow:var(--shadow);
+  }
 
-.info{
-    padding:15px;
-}
+  .main-image{
+    width:100%;
+    height:220px;
+    object-fit:cover;
+    display:block;
+    background:#f5f5f5;
+  }
 
-.title{
+  .thumbs{
+    display:flex;
+    gap:8px;
+    padding:10px 12px 0;
+    flex-wrap:wrap;
+  }
+
+  .thumb{
+    width:56px;
+    height:56px;
+    border:1px solid #ddd;
+    border-radius:10px;
+    overflow:hidden;
+    padding:0;
+    background:#fff;
+    cursor:pointer;
+    flex:0 0 auto;
+  }
+
+  .thumb img{
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    display:block;
+  }
+
+  .info{
+    padding:14px 14px 16px;
+  }
+
+  .title{
     font-size:18px;
-    font-weight:600;
-    margin-bottom:6px;
-}
-
-.price{
-    font-size:24px;
     font-weight:700;
-    margin-bottom:8px;
-}
+    margin:0 0 8px;
+    line-height:1.3;
+  }
 
-.details{
-    color:#666;
-    margin-bottom:12px;
-    line-height:1.4;
-}
+  .price{
+    font-size:28px;
+    font-weight:800;
+    margin:0 0 8px;
+  }
 
-.buttons{
+  .details{
+    color:var(--muted);
+    font-size:14px;
+    line-height:1.5;
+    margin-bottom:14px;
+    min-height:42px;
+  }
+
+  .chips{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-bottom:14px;
+  }
+
+  .chip{
+    font-size:12px;
+    padding:6px 10px;
+    border:1px solid #ddd;
+    border-radius:999px;
+    background:#fafafa;
+    color:#333;
+  }
+
+  .buttons{
     display:flex;
     gap:10px;
-}
+  }
 
-.btn{
+  .btn{
     flex:1;
-    padding:10px;
-    text-align:center;
-    border-radius:8px;
     text-decoration:none;
-    font-weight:600;
-}
+    text-align:center;
+    padding:12px 10px;
+    border-radius:10px;
+    font-weight:700;
+    font-size:14px;
+  }
 
-.marketplace{
-    background:#1877f2;
+  .btn.primary{
+    background:var(--blue);
     color:#fff;
-}
+  }
 
-.schedule{
-    background:#111;
+  .btn.secondary{
+    background:var(--dark);
     color:#fff;
-}
+  }
+
+  .empty{
+    grid-column:1/-1;
+    padding:26px;
+    border:1px dashed #ccc;
+    border-radius:14px;
+    text-align:center;
+    color:var(--muted);
+    background:#fff;
+  }
+
+  .error{
+    grid-column:1/-1;
+    padding:26px;
+    border:1px solid #f0c3c3;
+    border-radius:14px;
+    text-align:center;
+    color:#8b1e1e;
+    background:#fff6f6;
+  }
+
+  @media (max-width: 640px){
+    header h1{ font-size:34px; }
+    .controls select{ flex:1 1 220px; }
+    .main-image{ height:200px; }
+    .price{ font-size:25px; }
+  }
 </style>
 </head>
-
 <body>
 
 <header>
-<h1>Inventory</h1>
+  <h1>Inventory</h1>
 </header>
 
 <div class="controls">
-<input id="search" placeholder="Search inventory...">
-
-<select id="sort">
-<option value="">Sort By</option>
-<option value="priceLow">Price Low → High</option>
-<option value="priceHigh">Price High → Low</option>
-<option value="newest">Newest Stock</option>
-</select>
+  <input id="search" type="text" placeholder="Search inventory..." />
+  <select id="sort">
+    <option value="newestYear">Year High → Low</option>
+    <option value="oldestYear">Year Low → High</option>
+    <option value="priceLow">Price Low → High</option>
+    <option value="priceHigh">Price High → Low</option>
+    <option value="stockAz">Stock A → Z</option>
+    <option value="stockZa">Stock Z → A</option>
+  </select>
 </div>
 
+<div class="meta" id="meta">Loading inventory...</div>
+<div class="status-line" id="statusLine"></div>
 <div class="inventory" id="inventory"></div>
 
 <script>
+  const SHEET_ID = "1LGeq8OOEyDZUbEAKPsyOeMKIpBt2gRQGpFL22UZ3szI";
+  const GID = 0;
 
-const SHEET_URL =
-"https://docs.google.com/spreadsheets/d/1LGeq8OOEyDZUbEAKPsyOeMKIpBt2gRQGpFL22UZ3szI/gviz/tq?tqx=out:json";
+  const SHEET_URL =
+    `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?gid=${GID}&headers=1&tq=select%20A,B,C,D,E,F,G,H&tqx=out:json;responseHandler:inventorySheetLoaded`;
 
-let vehicles = [];
+  const PLACEHOLDER_IMAGE =
+    "data:image/svg+xml;charset=UTF-8," +
+    encodeURIComponent(`
+      <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="800" viewBox="0 0 1200 800">
+        <rect width="1200" height="800" fill="#f3f3f3"/>
+        <rect x="120" y="170" width="960" height="460" rx="30" fill="#e5e5e5"/>
+        <text x="600" y="420" font-family="Arial, Helvetica, sans-serif" font-size="54" text-anchor="middle" fill="#888">
+          No Photo Available
+        </text>
+      </svg>
+    `);
 
-/*
-COLUMN MAP:
-0 Year
-1 Make
-2 Model
-3 Type
-4 Price
-5 Stock
-6 Status
-7 Description
-*/
+  let vehicles = [];
 
-async function loadData(){
+  const inventoryEl = document.getElementById("inventory");
+  const metaEl = document.getElementById("meta");
+  const statusEl = document.getElementById("statusLine");
+  const searchEl = document.getElementById("search");
+  const sortEl = document.getElementById("sort");
 
-try{
+  function escapeHtml(value) {
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#39;");
+  }
 
-const res = await fetch(SHEET_URL);
-const text = await res.text();
-const json = JSON.parse(text.substring(47).slice(0,-2));
+  function toNumber(value) {
+    const n = Number(String(value ?? "").replace(/[^0-9.-]/g, ""));
+    return Number.isFinite(n) ? n : 0;
+  }
 
-vehicles = json.table.rows.map(r => ({
+  function parseImages(description) {
+    return String(description ?? "")
+      .split(";")
+      .map(s => s.trim())
+      .filter(Boolean);
+  }
 
-year: r.c?.[0]?.v || "",
-make: r.c?.[1]?.v || "",
-model: r.c?.[2]?.v || "",
-type: r.c?.[3]?.v || "",
-price: Number(r.c?.[4]?.v || 0),
-stock: r.c?.[5]?.v || "",
-status: (r.c?.[6]?.v || "").toString().toLowerCase(),
-desc: r.c?.[7]?.v || ""
+  function normalizeText(v) {
+    return String(v ?? "").trim();
+  }
 
-}))
-.filter(v => v.status === "available");
+  function vehicleSort(a, b, mode) {
+    const yearA = toNumber(a.year);
+    const yearB = toNumber(b.year);
+    const priceA = toNumber(a.price);
+    const priceB = toNumber(b.price);
+    const stockA = normalizeText(a.stock).toLowerCase();
+    const stockB = normalizeText(b.stock).toLowerCase();
 
-render();
+    switch (mode) {
+      case "priceLow":
+        return priceA - priceB;
+      case "priceHigh":
+        return priceB - priceA;
+      case "oldestYear":
+        return yearA - yearB;
+      case "newestYear":
+        return yearB - yearA;
+      case "stockAz":
+        return stockA.localeCompare(stockB, undefined, { numeric: true, sensitivity: "base" });
+      case "stockZa":
+        return stockB.localeCompare(stockA, undefined, { numeric: true, sensitivity: "base" });
+      default:
+        return yearB - yearA;
+    }
+  }
 
-}catch(err){
-console.log(err);
-document.getElementById("inventory").innerHTML =
-"<p style='padding:20px'>Unable to load inventory. Check Google Sheet sharing settings.</p>";
-}
+  function setCardImage(cardId, imageUrl) {
+    const img = document.getElementById(`main-img-${cardId}`);
+    if (img && imageUrl) img.src = imageUrl;
+  }
 
-}
+  window.setCardImage = setCardImage;
 
-function render(){
+  function render() {
+    const query = searchEl.value.trim().toLowerCase();
+    const sortMode = sortEl.value;
 
-let list = [...vehicles];
+    let list = [...vehicles];
 
-const q = document.getElementById("search").value.toLowerCase();
+    if (query) {
+      list = list.filter(v => {
+        const haystack = [
+          v.year, v.make, v.model, v.type, v.price, v.stock, v.status
+        ].join(" ").toLowerCase();
+        return haystack.includes(query);
+      });
+    }
 
-list = list.filter(v =>
-`${v.year} ${v.make} ${v.model} ${v.type} ${v.stock} ${v.desc}`
-.toLowerCase()
-.includes(q)
-);
+    list.sort((a, b) => vehicleSort(a, b, sortMode));
 
-const sort = document.getElementById("sort").value;
+    metaEl.textContent = `${list.length} vehicle${list.length === 1 ? "" : "s"} found`;
 
-switch(sort){
+    if (!list.length) {
+      inventoryEl.innerHTML = `<div class="empty">No available inventory found.</div>`;
+      return;
+    }
 
-case "priceLow":
-list.sort((a,b)=>a.price-b.price);
-break;
+    inventoryEl.innerHTML = list.map((v, index) => {
+      const images = v.images.length ? v.images : [PLACEHOLDER_IMAGE];
+      const cardId = `${index}-${String(v.stock).replace(/[^a-z0-9_-]/gi, "") || "car"}`;
+      const mainImage = escapeHtml(images[0]);
+      const title = `${escapeHtml(v.year)} ${escapeHtml(v.make)} ${escapeHtml(v.model)}`.trim();
+      const typeLine = escapeHtml(v.type);
+      const stockLine = escapeHtml(v.stock);
+      const priceLine = Number(toNumber(v.price)).toLocaleString();
 
-case "priceHigh":
-list.sort((a,b)=>b.price-a.price);
-break;
+      const thumbs = images.slice(0, 6).map((img, i) => `
+        <button class="thumb" type="button" onclick="setCardImage('${cardId}', '${String(img).replaceAll("'", "\\'")}')">
+          <img src="${escapeHtml(img)}" alt="Photo ${i + 1}">
+        </button>
+      `).join("");
 
-case "newest":
-list.sort((a,b)=>(+b.stock||0)-(+a.stock||0));
-break;
+      return `
+        <article class="card">
+          <img
+            id="main-img-${cardId}"
+            class="main-image"
+            src="${mainImage}"
+            alt="${title}"
+            onerror="this.src='${PLACEHOLDER_IMAGE}'"
+          >
 
-}
+          ${images.length > 1 ? `<div class="thumbs">${thumbs}</div>` : ""}
 
-document.getElementById("inventory").innerHTML =
-list.map(v => `
+          <div class="info">
+            <div class="title">${title}</div>
+            <div class="price">$${priceLine}</div>
 
-<div class="card">
+            <div class="details">
+              ${typeLine ? `${typeLine}<br>` : ""}
+              ${stockLine ? `Stock: ${stockLine}` : ""}
+            </div>
 
-<div class="info">
+            <div class="chips">
+              <span class="chip">Available</span>
+              ${v.type ? `<span class="chip">${escapeHtml(v.type)}</span>` : ""}
+            </div>
 
-<div class="title">
-${v.year} ${v.make} ${v.model}
-</div>
+            <div class="buttons">
+              <a class="btn primary" href="https://www.cashbydaily.com/inquiry" target="_blank" rel="noopener">Schedule</a>
+              <a class="btn secondary" href="javascript:void(0)" onclick="navigator.clipboard.writeText('${escapeHtml(stockLine).replaceAll("'", "\\'")}')">Copy Stock</a>
+            </div>
+          </div>
+        </article>
+      `;
+    }).join("");
+  }
 
-<div class="price">
-$${Number(v.price).toLocaleString()}
-</div>
+  function loadSheetViaScript() {
+    statusEl.textContent = "Loading sheet...";
 
-<div class="details">
-${v.type}<br>
-Stock: ${v.stock}<br>
-${v.desc}
-</div>
+    const existing = document.getElementById("sheet-loader");
+    if (existing) existing.remove();
 
-<div class="buttons">
+    const script = document.createElement("script");
+    script.id = "sheet-loader";
+    script.async = true;
+    script.src = `${SHEET_URL}&_=${Date.now()}`;
 
-<a class="btn marketplace" href="#" target="_blank">
-View
-</a>
+    script.onerror = () => {
+      metaEl.textContent = "Could not load the sheet.";
+      statusEl.textContent = "";
+      inventoryEl.innerHTML = `
+        <div class="error">
+          The inventory did not load. Make sure the sheet is shared as <strong>Anyone with the link</strong> or <strong>Public on the web</strong>, and that row 1 contains the headers in the exact order:
+          <br><br>
+          Year | Make | Model | Type | Price | Stock | Status | Description
+        </div>
+      `;
+    };
 
-<a class="btn schedule" href="https://www.cashbydaily.com/inquiry" target="_blank">
-Schedule
-</a>
+    document.body.appendChild(script);
+  }
 
-</div>
+  window.inventorySheetLoaded = function(data) {
+    try {
+      const rows = data?.table?.rows || [];
 
-</div>
+      vehicles = rows.map(row => ({
+        year: normalizeText(row.c?.[0]?.v || ""),
+        make: normalizeText(row.c?.[1]?.v || ""),
+        model: normalizeText(row.c?.[2]?.v || ""),
+        type: normalizeText(row.c?.[3]?.v || ""),
+        price: normalizeText(row.c?.[4]?.v || ""),
+        stock: normalizeText(row.c?.[5]?.v || ""),
+        status: normalizeText(row.c?.[6]?.v || "").toLowerCase(),
+        images: parseImages(row.c?.[7]?.v || "")
+      })).filter(v => v.status === "available");
 
-</div>
+      statusEl.textContent = "";
+      render();
+    } catch (err) {
+      console.error(err);
+      metaEl.textContent = "Inventory load error.";
+      statusEl.textContent = "";
+      inventoryEl.innerHTML = `<div class="error">The sheet loaded, but the data format did not match the expected columns.</div>`;
+    }
+  };
 
-`).join("");
+  searchEl.addEventListener("input", render);
+  sortEl.addEventListener("change", render);
 
-}
-
-document.getElementById("search").addEventListener("input",render);
-document.getElementById("sort").addEventListener("change",render);
-
-loadData();
-
+  loadSheetViaScript();
 </script>
-
 </body>
 </html>
